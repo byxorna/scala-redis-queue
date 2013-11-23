@@ -9,6 +9,8 @@ This is written to provide a simple interface for https://github.com/byxorna/fro
 
  https://github.com/debasishg/scala-redis supports RPOPLPUSH, but not authentication to redis. https://github.com/top10/scala-redis-client supports the opposite. I am using scala-redis for now.
 
+ Implement counters to track actions taken by the library
+
 ## Credits
 
 * http://redis.io/commands/rpoplpush
