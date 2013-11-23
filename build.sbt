@@ -10,5 +10,5 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "com.top10" %% "scala-redis-client" % "1.16.0"
+//  "com.top10" %% "scala-redis-client" % "1.16.0"
 )
