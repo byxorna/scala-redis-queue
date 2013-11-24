@@ -43,12 +43,12 @@ class Queue(client: RedisClient, namespace: String, queue: String) {
     case _ => (false,0)
   }
 
-  def requeueFailed = lengthFailed match {
+  def requeueFailed: Int = lengthFailed match {
     case 0 => 0
     case _ => client.rpoplpush(failedKey,queueKey) match {
       case None => 0
-      case Some(_) => 1
-    } + requeueFailed
+      case Some(_) => 1 + requeueFailed
+    }
   }
 
 }
