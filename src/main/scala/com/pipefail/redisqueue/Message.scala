@@ -2,7 +2,18 @@ package com.pipefail.redisqueue
 
 import argonaut._, Argonaut._
 
-case class Message(payload: String, timestamp: Long, error: Option[Error])
+sealed trait JsonTrait {
+  def toJson: Json
+}
+
+case class Message(payload: String, timestamp: Long, error: Option[Error] = None) extends JsonTrait {
+
+  // this is super kludgy, but I dont know a better way to give consumers of
+  // com.pipefail.redisqueue.Message access to .asJson without needing to import
+  // the argonaut library. FIXME
+  override def toJson: Json = this.asJson
+
+}
 
 object Message {
 
@@ -15,7 +26,11 @@ object Message {
 
 }
 
-case class Error(message: String, lastFailure: Long, failures: Int)
+case class Error(message: String, lastFailure: Long, failures: Int) extends JsonTrait {
+
+  override def toJson: Json = this.asJson
+
+}
 
 object Error {
 
