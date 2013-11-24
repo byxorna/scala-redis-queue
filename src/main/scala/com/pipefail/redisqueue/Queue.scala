@@ -35,6 +35,7 @@ class Queue(client: RedisClient, queue: String, namespace: String) {
     case Some(n) => n
     case _ => 0
   }
+
   private def length(key: String) = client.llen(key) match {
     case Some(n) => n
     case _ => 0
