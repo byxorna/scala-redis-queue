@@ -10,5 +10,6 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
+  "io.argonaut" %% "argonaut" % "6.0.1"
 //  "com.top10" %% "scala-redis-client" % "1.16.0"
 )
