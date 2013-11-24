@@ -10,9 +10,17 @@ object Consumer {
 class Consumer(queue: Queue) {
 
   // tries to grab a message from the input queue
-  def get: Option[Message] = queue.getClient.rpoplpush(queue.inputKey, queue.activeKey) match {
-    case Some(s) => Message.parse(s)
-    case None => None
+  def get: Option[Message] = hasUnacked match {
+    case Left(f) => None
+    case Right(o) => if (o) {
+      None
+      //Left(Failure("Cannot get message while there are unacked messages"))
+    } else {
+        queue.getClient.rpoplpush(queue.inputKey, queue.activeKey) match {
+        case Some(s) => Message.parse(s)
+        case None => None
+      }
+    }
   }
 
   // we have handled this message; get rid of it!
@@ -22,10 +30,10 @@ class Consumer(queue: Queue) {
     case Some(_) => true
   }
 
-  def reject(message: Message): Boolean = queue.getClient.rpoplpush(queue.activeKey, queue.failedKey) match {
-    case None => false
+  def reject(message: Message): Either[Failure, Boolean] = queue.getClient.rpoplpush(queue.activeKey, queue.failedKey) match {
+    case None => Left(Failure("Unable to reject message"))
     // TODO: add logging for message we failed
-    case Some(s) => true
+    case Some(s) => Right(true)
   }
 
   def hasUnacked: Either[Failure, Boolean] = queue.getClient.llen(queue.activeKey) match {
