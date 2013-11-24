@@ -7,11 +7,11 @@ This is written to provide a simple interface for https://github.com/byxorna/fro
 
 ## Overview
 
-namespace::queue - Input queue for 'queue'
-namespace::queue::failed - Messages that were rejected are here
-namespace::queue::consumers - Set of consumer ids
-namespace::queue::${ID} - Active messsages for consumer id:$ID
-namespace::queue::${ID}::heartbeat - heartbeat message that a consumer is active
+* namespace::queue - Input queue for 'queue'
+* namespace::queue::failed - Messages that were rejected are here
+* namespace::queue::consumers - Set of consumer ids
+* namespace::queue::${ID} - Active messsages for consumer id:$ID
+* namespace::queue::${ID}::heartbeat - heartbeat message that a consumer is active
 
 ## TODO
 
