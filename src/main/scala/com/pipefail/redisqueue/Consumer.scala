@@ -28,6 +28,11 @@ class Consumer(queue: Queue) {
     case Some(s) => true
   }
 
+  def hasUnacked: Either[Failure, Boolean] = queue.getClient.llen(queue.activeKey) match {
+    case None => Left(Failure("Unable to determine if consumer has any unacked messages"))
+    case Some(n) => Right(n != 0)
+  }
+
   //def getBlocking(timeout: Int): Option[Message] = TODO
 
 }
