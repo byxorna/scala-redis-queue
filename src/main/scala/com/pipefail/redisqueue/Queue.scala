@@ -10,11 +10,12 @@ class Queue(client: RedisClient, queue: String, namespace: String) {
   // set default values for connection
   def this(queue: String, namespace: String = "redisqueue") = this("localhost", 6379, queue, namespace)
 
-  def inputKey = makeKey(None)
+  def inputKey = makeKey()
   def failedKey = makeKey(Some("failed"))
-  def activeKey = makeKey(Some("active"))
 
-  private def makeKey(key: Option[String]) = key match {
+  def makeKey(keys: List[String]) = (namespace :: queue :: keys).mkString("::")
+
+  def makeKey(key: Option[String] = None) = key match {
     case None => List(namespace,queue).mkString("::")
     case Some(k) => List(namespace,queue,k).mkString("::")
   }
@@ -42,7 +43,6 @@ class Queue(client: RedisClient, queue: String, namespace: String) {
   }
   def inputLength = length(inputKey)
   def failedLength= length(failedKey)
-  def activeLength= length(activeKey)
 
   def deleteAll = {
     //TODO: check for consumers before deleting queue

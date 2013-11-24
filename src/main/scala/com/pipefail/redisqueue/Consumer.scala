@@ -1,13 +1,25 @@
 package com.pipefail.redisqueue
 
-object Consumer {
+import java.util.UUID
 
-  // TODO: we need to create a separate working list for each consumer, to ensure
-  // consumers are only failing/acking their own messages, not someone elses
-
-}
+//TODO implement this
+//def doRedisTask[Option[T]](func: => Option[T]): Either[Failure, Option[T]] = {
+//  try {
+//    block match {
+//      case Some(t) => Right(Some(t))
+//      case None => Left(Failure("Unable to get value"))
+//    }
+//  } catch {
+//    case ex => Left(Failure(ex.message,ex))
+//  }
+//}
 
 class Consumer(queue: Queue) {
+
+  val id = UUID.randomUUID.toString
+
+  def activeKey = queue.makeKey(Some(id))
+  def heartbeatKey = queue.makeKey(List(id,"heartbeat"))
 
   // tries to grab a message from the input queue
   def get: Option[Message] = hasUnacked match {
@@ -16,7 +28,7 @@ class Consumer(queue: Queue) {
       None
       //Left(Failure("Cannot get message while there are unacked messages"))
     } else {
-        queue.getClient.rpoplpush(queue.inputKey, queue.activeKey) match {
+        queue.getClient.rpoplpush(queue.inputKey, activeKey) match {
         case Some(s) => Message.parse(s)
         case None => None
       }
@@ -24,19 +36,18 @@ class Consumer(queue: Queue) {
   }
 
   // we have handled this message; get rid of it!
-  def ack(message: Message): Boolean = queue.getClient.rpop(queue.activeKey) match {
+  def ack(message: Message): Boolean = queue.getClient.rpop(activeKey) match {
     case None => false
-    // dont parse response, just assume Some(_) is the message we wanted to pop
     case Some(_) => true
   }
 
-  def reject(message: Message): Either[Failure, Boolean] = queue.getClient.rpoplpush(queue.activeKey, queue.failedKey) match {
+  def reject(message: Message): Either[Failure, Boolean] = queue.getClient.rpoplpush(activeKey, queue.failedKey) match {
     case None => Left(Failure("Unable to reject message"))
     // TODO: add logging for message we failed
     case Some(s) => Right(true)
   }
 
-  def hasUnacked: Either[Failure, Boolean] = queue.getClient.llen(queue.activeKey) match {
+  def hasUnacked: Either[Failure, Boolean] = queue.getClient.llen(activeKey) match {
     case None => Left(Failure("Unable to determine if consumer has any unacked messages"))
     case Some(n) => Right(n != 0)
   }
