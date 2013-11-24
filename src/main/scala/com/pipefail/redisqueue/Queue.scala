@@ -38,7 +38,7 @@ class Queue(client: RedisClient, namespace: String, queue: String) {
   }
 
   //TODO: write function to wrap up talking with client, wraps exceptions
-  def put(message: String) = client.lpush(queueKey, message) match {
+  def put(message: Message) = client.lpush(queueKey, message.toJson) match {
     case Some(num) => (true,num)
     case _ => (false,0)
   }
